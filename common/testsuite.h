@@ -7352,12 +7352,18 @@ static void mavlink_test_morph_status(uint8_t system_id, uint8_t component_id, m
         uint8_t buffer[MAVLINK_MAX_PACKET_LEN];
         uint16_t i;
     mavlink_morph_status_t packet_in = {
-        5
+        93372036854775807ULL,{ 73.0, 74.0, 75.0, 76.0 },{ 185.0, 186.0 },{ 241.0, 242.0 },{ 297.0, 298.0 },149,216
     };
     mavlink_morph_status_t packet1, packet2;
         memset(&packet1, 0, sizeof(packet1));
+        packet1.time_usec = packet_in.time_usec;
         packet1.mode = packet_in.mode;
+        packet1.shutter_open = packet_in.shutter_open;
         
+        mav_array_memcpy(packet1.angles, packet_in.angles, sizeof(float)*4);
+        mav_array_memcpy(packet1.raw_cg, packet_in.raw_cg, sizeof(float)*2);
+        mav_array_memcpy(packet1.filt_cg, packet_in.filt_cg, sizeof(float)*2);
+        mav_array_memcpy(packet1.ct, packet_in.ct, sizeof(float)*2);
         
 #ifdef MAVLINK_STATUS_FLAG_OUT_MAVLINK1
         if (status->flags & MAVLINK_STATUS_FLAG_OUT_MAVLINK1) {
@@ -7371,12 +7377,12 @@ static void mavlink_test_morph_status(uint8_t system_id, uint8_t component_id, m
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_morph_status_pack(system_id, component_id, &msg , packet1.mode );
+    mavlink_msg_morph_status_pack(system_id, component_id, &msg , packet1.time_usec , packet1.mode , packet1.angles , packet1.raw_cg , packet1.filt_cg , packet1.ct , packet1.shutter_open );
     mavlink_msg_morph_status_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_morph_status_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.mode );
+    mavlink_msg_morph_status_pack_chan(system_id, component_id, MAVLINK_COMM_0, &msg , packet1.time_usec , packet1.mode , packet1.angles , packet1.raw_cg , packet1.filt_cg , packet1.ct , packet1.shutter_open );
     mavlink_msg_morph_status_decode(&msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 
@@ -7389,7 +7395,7 @@ static void mavlink_test_morph_status(uint8_t system_id, uint8_t component_id, m
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
         
         memset(&packet2, 0, sizeof(packet2));
-    mavlink_msg_morph_status_send(MAVLINK_COMM_1 , packet1.mode );
+    mavlink_msg_morph_status_send(MAVLINK_COMM_1 , packet1.time_usec , packet1.mode , packet1.angles , packet1.raw_cg , packet1.filt_cg , packet1.ct , packet1.shutter_open );
     mavlink_msg_morph_status_decode(last_msg, &packet2);
         MAVLINK_ASSERT(memcmp(&packet1, &packet2, sizeof(packet1)) == 0);
 }
