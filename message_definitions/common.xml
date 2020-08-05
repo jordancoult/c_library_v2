@@ -4635,6 +4635,22 @@
       </entry>
       <entry value="7" name="FAILURE_TYPE_INTERMITTENT">
         <description>Unit is sometimes working, sometimes not.</description>
+    <enum name="MORPH_MODE">
+      <description>Mode which signifies current morphing functionality.</description>
+      <entry value="0" name="MORPH_MODE_DEMO">
+        <description>All of the arms move slowly through a cycle, covering their full ranges of motion.</description>
+      </entry>
+      <entry value="1" name="MORPH_MODE_QUAD_STATIC">
+        <description>The arms are in a quad-copter configuration and aren't moving.</description>
+      </entry>
+      <entry value="2" name="MORPH_MODE_TRI_STATIC">
+        <description>Three of the arms are in a tri-copter configuration and aren't moving.</description>
+      </entry>
+      <entry value="3" name="MORPH_MODE_TRANSITION">
+        <description>The drone briefly waits in quad position so CGF can stabilize before load-balancing is enabled.</description>
+      </entry>
+      <entry value="4" name="MORPH_MODE_QUAD_AUTO">
+        <description>Starting from a quad position, the four arms continually follow the estimated vehicle CG by utilizing CGF. Also known as "loab-balancing".</description>
       </entry>
     </enum>
   </enums>
@@ -6020,6 +6036,24 @@
       <field type="uint8_t" name="breach_mitigation" enum="FENCE_MITIGATE">Active action to prevent fence breach</field>
     </message>
     <!-- MESSAGE IDs 180 - 229: Space for custom messages in individual projectname_messages.xml files -->
+    <message id="228" name="DYNAGEO">
+      <!-- TODO: put this and morph_status in individual projectname_messages.xml file -->
+      <description>Mixer data from companion computer for implementing dynamic geometries in a PX4-based morphing system. This also includes data for implementing arbitrary-direction rotor-failure.</description>
+      <field type="uint64_t" name="time_usec" units="us">Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude the number.</field>
+      <field type="uint8_t" name="failed_arm">int, 0-4, indicating which arm failed (front_R, rear_L, front_L, rear_R, none)</field>
+      <field type="float[4]" name="roll">Roll scaling for top motors of mixer</field>
+      <field type="float[4]" name="pitch">Pitch scaling for top motors of mixer</field>
+    </message>
+    <message id="229" name="MORPH_STATUS">
+      <description>Status of all morphing-related data, including CGs (center of gravity).</description>
+      <field type="uint64_t" name="time_usec" units="us">Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude the number.</field>
+      <field type="uint8_t" name="mode" enum="MORPH_MODE">Mode indicating the current morphing functionality</field>
+      <field type="float[4]" name="angles" units="deg">Angles of arms with the drone body. 45 degrees is neutral quad position, and counterclockwise is positive.</field>
+      <field type="float[2]" name="raw_cg" units="m">Realtime calculated center of gravity, before any filtering/processing</field>
+      <field type="float[2]" name="filt_cg" units="m">Post-processed center of gravity signal</field>
+      <field type="float[2]" name="ct" units="m">CT (center of thrust) is the unweighted 2-D average of the 4 motor positions</field>
+      <field type="uint8_t" name="shutter_open">Boolean indicating open/closed shutter. The shutter allows/denies updating of filt_cg depending upon the stability/acceleration of the vehicle</field>
+    </message>
     <message id="230" name="ESTIMATOR_STATUS">
       <description>Estimator status message including flags, innovation test ratios and estimated accuracies. The flags message is an integer bitmask containing information on which EKF outputs are valid. See the ESTIMATOR_STATUS_FLAGS enum definition for further information. The innovation test ratios show the magnitude of the sensor innovation divided by the innovation check threshold. Under normal operation the innovation test ratios should be below 0.5 with occasional values up to 1.0. Values greater than 1.0 should be rare under normal operation and indicate that a measurement has been rejected by the filter. The user should be notified if an innovation test ratio greater than 1.0 is recorded. Notifications for values in the range between 0.5 and 1.0 should be optional and controllable by the user.</description>
       <field type="uint64_t" name="time_usec" units="us">Timestamp (UNIX Epoch time or time since system boot). The receiving end can infer timestamp format (since 1.1.1970 or since system boot) by checking for the magnitude of the number.</field>
