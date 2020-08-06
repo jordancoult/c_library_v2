@@ -4635,6 +4635,8 @@
       </entry>
       <entry value="7" name="FAILURE_TYPE_INTERMITTENT">
         <description>Unit is sometimes working, sometimes not.</description>
+      </entry>
+    </enum>
     <enum name="MORPH_MODE">
       <description>Mode which signifies current morphing functionality.</description>
       <entry value="0" name="MORPH_MODE_DEMO">
